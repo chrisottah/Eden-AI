@@ -1284,3 +1284,26 @@
 {/if}
 
 <div bind:this={element} class="relative w-full min-w-full h-full min-h-fit {className}" />
+
+<style>
+  /* Removes focus border from the ProseMirror editor */
+  :global(.ProseMirror:focus) {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Optional: remove borders from parent container too */
+  :global(.input-prose:focus-within) {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Optional dark mode override */
+  :global(.dark .ProseMirror:focus) {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+</style>
