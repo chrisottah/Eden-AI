@@ -1,1 +1,21 @@
-{}
+{
+  "name": "Eden AI",
+  "short_name": "Eden AI",
+  "description": "Eden AI - Your AI Assistant",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#171717",
+  "theme_color": "#171717",
+  "icons": [
+    {
+      "src": "/static/logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
