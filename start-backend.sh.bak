@@ -1,0 +1,9 @@
+#!/bin/bash
+export PYTHONPATH=$PYTHONPATH:/workspace/Eden-AI/backend
+uvicorn open_webui.main:app --host 0.0.0.0 --port 8081 --reload
+
+# Start edenhub.io tunnel
+nohup cloudflared tunnel --config /root/.cloudflared/eden-config.yml run edenhub-tunnel > /root/cloudflared-eden.log 2>&1 &
+
+# Start comfyui.edenhub.io tunnel
+nohup cloudflared tunnel --config /root/.cloudflared/comfyui-config.yml run comfyui > /root/cloudflared-comfyui.log 2>&1 &

@@ -455,6 +455,9 @@ async def ldap_auth(request: Request, response: Response, form_data: LdapForm):
 
 @router.post("/signin", response_model=SessionUserResponse)
 async def signin(request: Request, response: Response, form_data: SigninForm):
+    user = None
+
+    # Handle Trusted Headers (OTP-based login)
     if WEBUI_AUTH_TRUSTED_EMAIL_HEADER:
         if WEBUI_AUTH_TRUSTED_EMAIL_HEADER not in request.headers:
             raise HTTPException(400, detail=ERROR_MESSAGES.INVALID_TRUSTED_HEADER)
@@ -465,7 +468,8 @@ async def signin(request: Request, response: Response, form_data: SigninForm):
         if WEBUI_AUTH_TRUSTED_NAME_HEADER:
             name = request.headers.get(WEBUI_AUTH_TRUSTED_NAME_HEADER, email)
 
-        if not Users.get_user_by_email(email.lower()):
+        if not Users.get_user_by_email(email):
+            # First-time OTP user → trigger signup with random password
             await signup(
                 request,
                 response,
@@ -473,21 +477,22 @@ async def signin(request: Request, response: Response, form_data: SigninForm):
             )
 
         user = Auths.authenticate_user_by_email(email)
+
         if WEBUI_AUTH_TRUSTED_GROUPS_HEADER and user and user.role != "admin":
             group_names = request.headers.get(
                 WEBUI_AUTH_TRUSTED_GROUPS_HEADER, ""
             ).split(",")
-            group_names = [name.strip() for name in group_names if name.strip()]
-
+            group_names = [g.strip() for g in group_names if g.strip()]
             if group_names:
                 Groups.sync_groups_by_group_names(user.id, group_names)
 
-    elif WEBUI_AUTH == False:
+    # Handle Admin Fallback (no auth enabled)
+    elif WEBUI_AUTH is False:
         admin_email = "admin@localhost"
         admin_password = "admin"
 
-        if Users.get_user_by_email(admin_email.lower()):
-            user = Auths.authenticate_user(admin_email.lower(), admin_password)
+        if Users.get_user_by_email(admin_email):
+            user = Auths.authenticate_user(admin_email, admin_password)
         else:
             if Users.get_num_users() != 0:
                 raise HTTPException(400, detail=ERROR_MESSAGES.EXISTING_USERS)
@@ -495,24 +500,22 @@ async def signin(request: Request, response: Response, form_data: SigninForm):
             await signup(
                 request,
                 response,
-                SignupForm(email=admin_email, password=admin_password, name="User"),
+                SignupForm(email=admin_email, password=admin_password, name="Admin"),
             )
+            user = Auths.authenticate_user(admin_email, admin_password)
 
-            user = Auths.authenticate_user(admin_email.lower(), admin_password)
+    # Legacy form-data login (password-based)
     else:
         user = Auths.authenticate_user(form_data.email.lower(), form_data.password)
 
+    # If login successful, issue JWT
     if user:
-
         expires_delta = parse_duration(request.app.state.config.JWT_EXPIRES_IN)
         expires_at = None
         if expires_delta:
             expires_at = int(time.time()) + int(expires_delta.total_seconds())
 
-        token = create_token(
-            data={"id": user.id},
-            expires_delta=expires_delta,
-        )
+        token = create_token(data={"id": user.id}, expires_delta=expires_delta)
 
         datetime_expires_at = (
             datetime.datetime.fromtimestamp(expires_at, datetime.timezone.utc)
@@ -520,12 +523,11 @@ async def signin(request: Request, response: Response, form_data: SigninForm):
             else None
         )
 
-        # Set the cookie token
         response.set_cookie(
             key="token",
             value=token,
             expires=datetime_expires_at,
-            httponly=True,  # Ensures the cookie is not accessible via JavaScript
+            httponly=True,
             samesite=WEBUI_AUTH_COOKIE_SAME_SITE,
             secure=WEBUI_AUTH_COOKIE_SECURE,
         )
@@ -545,8 +547,8 @@ async def signin(request: Request, response: Response, form_data: SigninForm):
             "profile_image_url": user.profile_image_url,
             "permissions": user_permissions,
         }
-    else:
-        raise HTTPException(400, detail=ERROR_MESSAGES.INVALID_CRED)
+
+    raise HTTPException(400, detail=ERROR_MESSAGES.INVALID_CRED)
 
 
 ############################
