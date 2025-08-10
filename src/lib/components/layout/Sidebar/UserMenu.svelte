@@ -141,38 +141,43 @@
 			{#if help}
 				<hr class=" border-gray-100 dark:border-gray-800 my-1 p-0" />
 
-				<!-- {$i18n.t('Help')} -->
+				{#if $user?.role === 'admin'}
+					<DropdownMenu.Item
+						class="flex gap-2 items-center py-1.5 px-3 text-sm select-none w-full cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition"
+						id="chat-share-button"
+						on:click={() => {
+							window.open('https://edenhub.io', '_blank');
+							show = false;
+						}}
+					>
+						<QuestionMarkCircle className="size-5" />
+						<div class="flex items-center">{$i18n.t('Documentation')}</div>
+					</DropdownMenu.Item>
+
+					<DropdownMenu.Item
+						class="flex gap-2 items-center py-1.5 px-3 text-sm select-none w-full cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition"
+						id="menu-item-releases"
+						on:click={() => {
+							window.open('https://edenhub.io', '_blank');
+							show = false;
+						}}
+					>
+						<Map className="size-5" />
+						<div class="flex items-center">{$i18n.t('Releases')}</div>
+					</DropdownMenu.Item>
+				{/if}
+
 				<DropdownMenu.Item
 					class="flex gap-2 items-center py-1.5 px-3 text-sm select-none w-full cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition"
 					id="chat-share-button"
-					on:click={() => {
-						window.open('https://edenhub.io', '_blank');
-						show = false;
-					}}
-				>
-					<QuestionMarkCircle className="size-5" />
-					<div class="flex items-center">{$i18n.t('Documentation')}</div>
-				</DropdownMenu.Item>
-
-				<!-- Releases -->
-				<DropdownMenu.Item
-					class="flex gap-2 items-center py-1.5 px-3 text-sm select-none w-full cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition"
-					id="menu-item-releases"
-					on:click={() => {
-						window.open('https://edenhub.io', '_blank');
-						show = false;
-					}}
-				>
-					<Map className="size-5" />
-					<div class="flex items-center">{$i18n.t('Releases')}</div>
-				</DropdownMenu.Item>
-
-				<DropdownMenu.Item
-					class="flex gap-2 items-center py-1.5 px-3 text-sm select-none w-full cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition"
-					id="chat-share-button"
-					on:click={() => {
+					on:click={async () => {
 						showShortcuts.set(!$showShortcuts);
 						show = false;
+
+						if ($mobile) {
+							await tick();
+							showSidebar.set(false);
+						}
 					}}
 				>
 					<Keyboard className="size-5" />
@@ -235,10 +240,6 @@
 					</Tooltip>
 				{/if}
 			{/if}
-
-			<!-- <DropdownMenu.Item class="flex items-center py-1.5 px-3 text-sm ">
-				<div class="flex items-center">Profile</div>
-			</DropdownMenu.Item> -->
 		</DropdownMenu.Content>
 	</slot>
 </DropdownMenu.Root>
