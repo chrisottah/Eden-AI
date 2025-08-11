@@ -60,6 +60,7 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1
       '@tiptap/core':
+<<<<<<< HEAD
         specifier: ^3.0.7
         version: 3.1.0(@tiptap/pm@3.1.0)
       '@tiptap/extension-bubble-menu':
@@ -89,11 +90,43 @@ importers:
       '@tiptap/extension-list':
         specifier: ^3.0.7
         version: 3.1.0(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)
+=======
+        specifier: ^3.1.0
+        version: 3.1.0(@tiptap/pm@3.1.0)
+      '@tiptap/extension-bubble-menu':
+        specifier: ^3.1.0
+        version: 3.1.0(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)
+      '@tiptap/extension-code-block-lowlight':
+        specifier: ^3.0.7
+        version: 3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/extension-code-block@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)(highlight.js@11.11.1)(lowlight@3.3.0)
+      '@tiptap/extension-drag-handle':
+        specifier: ^3.0.7
+        version: 3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/extension-collaboration@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)(@tiptap/y-tiptap@3.0.0(prosemirror-model@1.25.2)(prosemirror-state@1.4.3)(prosemirror-view@1.40.1)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27))(yjs@13.6.27))(@tiptap/extension-node-range@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)(@tiptap/y-tiptap@3.0.0(prosemirror-model@1.25.2)(prosemirror-state@1.4.3)(prosemirror-view@1.40.1)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27))
+      '@tiptap/extension-file-handler':
+        specifier: ^3.0.7
+        version: 3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/extension-text-style@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0)))(@tiptap/pm@3.1.0)
+      '@tiptap/extension-floating-menu':
+        specifier: ^3.1.0
+        version: 3.1.0(@floating-ui/dom@1.7.2)(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)
+      '@tiptap/extension-highlight':
+        specifier: ^3.0.7
+        version: 3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))
+      '@tiptap/extension-image':
+        specifier: ^3.0.7
+        version: 3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))
+      '@tiptap/extension-link':
+        specifier: ^3.0.7
+        version: 3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)
+      '@tiptap/extension-list':
+        specifier: ^3.0.7
+        version: 3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)
+>>>>>>> 7a6ddd5e3 (updated Eden-AI to version 0.6.22)
       '@tiptap/extension-mention':
         specifier: ^3.0.9
         version: 3.1.0(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)(@tiptap/suggestion@3.1.0(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0))
       '@tiptap/extension-table':
         specifier: ^3.0.7
+<<<<<<< HEAD
         version: 3.1.0(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)
       '@tiptap/extension-typography':
         specifier: ^3.0.7
@@ -105,7 +138,7 @@ importers:
         specifier: ^3.0.7
         version: 3.1.0(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)
       '@tiptap/pm':
-        specifier: ^3.0.7
+        specifier: ^3.1.0
         version: 3.1.0
       '@tiptap/starter-kit':
         specifier: ^3.1.0
@@ -1607,11 +1640,11 @@ packages:
     peerDependencies:
       '@tiptap/core': ^3.1.0
 
-  '@tiptap/extension-bubble-menu@2.26.1':
-    resolution: {integrity: sha512-oHevUcZbTMFOTpdCEo4YEDe044MB4P1ZrWyML8CGe5tnnKdlI9BN03AXpI1mEEa5CA3H1/eEckXx8EiCgYwQ3Q==}
+  '@tiptap/extension-bubble-menu@3.1.0':
+    resolution: {integrity: sha512-nuJTNL3OXskObeXElHMqeU9LIWBgfSIudcBMfm0Elj3/2orjd1Z3nLmoloO6zGPmZkpRMjQnTe41PvAGIMibOw==}
     peerDependencies:
-      '@tiptap/core': ^2.7.0
-      '@tiptap/pm': ^2.7.0
+      '@tiptap/core': ^3.1.0
+      '@tiptap/pm': ^3.1.0
 
   '@tiptap/extension-bullet-list@3.1.0':
     resolution: {integrity: sha512-lSuj0T/c/lAI01sgOdDUmFmnxItIC2WQHxzg16KOoDCzW/PtWBc6pNmCSexmqqGoTg9xNWytPWvKapZ/GCwhiQ==}
@@ -1672,11 +1705,12 @@ packages:
       '@tiptap/extension-text-style': ^3.1.0
       '@tiptap/pm': ^3.1.0
 
-  '@tiptap/extension-floating-menu@2.26.1':
-    resolution: {integrity: sha512-OJF+H6qhQogVTMedAGSWuoL1RPe3LZYXONuFCVyzHnvvMpK+BP1vm180E2zDNFnn/DVA+FOrzNGpZW7YjoFH1w==}
+  '@tiptap/extension-floating-menu@3.1.0':
+    resolution: {integrity: sha512-dNhRw3gH9VHqaaSEZ5y7n8k5Ot1cH6jzTpXrKOFt0EhrwV+4P+knTHsvKe33AumpukailMpuSGhDr2/RQQCRTQ==}
     peerDependencies:
-      '@tiptap/core': ^2.7.0
-      '@tiptap/pm': ^2.7.0
+      '@floating-ui/dom': ^1.0.0
+      '@tiptap/core': ^3.1.0
+      '@tiptap/pm': ^3.1.0
 
   '@tiptap/extension-gapcursor@3.1.0':
     resolution: {integrity: sha512-9cm1ngE1SY26hCw/nzDNmWkyeZYRfidLamOuym7sg15pWj8BifTNuByrnK6fpQVSJWneV1y0npDj8WLpQ+t3CA==}
@@ -1738,6 +1772,7 @@ packages:
 
   '@tiptap/extension-mention@3.1.0':
     resolution: {integrity: sha512-iagMFORtMcpj09McUqJKxqPez7sGs8GZ1sFDiCnAMfrcQFs/reza7TjY67JmxWtP1+kLaCvic8Og9Fpxi+IF8A==}
+
     peerDependencies:
       '@tiptap/core': ^3.1.0
       '@tiptap/pm': ^3.1.0
@@ -1806,6 +1841,12 @@ packages:
 
   '@tiptap/starter-kit@3.1.0':
     resolution: {integrity: sha512-L+9WfA+XO4mwq4b0lEUr540q+jIENhZiVSNhOYdWlRyan+HCV60BkC8E/nBuqCk6tbM1jEqFQjVBqJWwjBsalQ==}
+
+  '@tiptap/suggestion@3.1.0':
+    resolution: {integrity: sha512-UzMDxYhqiFqRsBMMsAxzwsseveOtiCGWb5CADZOsrj7EjNzuzJNy+Mr8jB3p3uM3Hmv3GBCLQkCYjEZfrIKZ1w==}
+    peerDependencies:
+      '@tiptap/core': ^3.1.0
+      '@tiptap/pm': ^3.1.0
 
   '@tiptap/suggestion@3.1.0':
     resolution: {integrity: sha512-UzMDxYhqiFqRsBMMsAxzwsseveOtiCGWb5CADZOsrj7EjNzuzJNy+Mr8jB3p3uM3Hmv3GBCLQkCYjEZfrIKZ1w==}
@@ -6227,9 +6268,6 @@ snapshots:
     dependencies:
       '@tiptap/pm': 3.1.0
 
-  '@tiptap/extension-blockquote@3.1.0(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))':
-    dependencies:
-      '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
 
   '@tiptap/extension-bold@3.1.0(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))':
     dependencies:
@@ -6249,15 +6287,40 @@ snapshots:
     dependencies:
       '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
       '@tiptap/extension-code-block': 3.1.0(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)
+
+  '@tiptap/extension-blockquote@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))':
+    dependencies:
+      '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
+
+  '@tiptap/extension-bubble-menu@3.1.0(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)':
+    dependencies:
+      '@floating-ui/dom': 1.7.2
+      '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
+      '@tiptap/pm': 3.1.0
+
+  '@tiptap/extension-bullet-list@3.0.7(@tiptap/extension-list@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0))':
+    dependencies:
+      '@tiptap/extension-list': 3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)
+
+  '@tiptap/extension-code-block-lowlight@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/extension-code-block@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)(highlight.js@11.11.1)(lowlight@3.3.0)':
+    dependencies:
+      '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
+      '@tiptap/extension-code-block': 3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)
+>>>>>>> 7a6ddd5e3 (updated Eden-AI to version 0.6.22)
       '@tiptap/pm': 3.1.0
       highlight.js: 11.11.1
       lowlight: 3.3.0
 
+<<<<<<< HEAD
   '@tiptap/extension-code-block@3.1.0(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)':
+=======
+  '@tiptap/extension-code-block@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)':
+>>>>>>> 7a6ddd5e3 (updated Eden-AI to version 0.6.22)
     dependencies:
       '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
       '@tiptap/pm': 3.1.0
 
+<<<<<<< HEAD
   '@tiptap/extension-code@3.1.0(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))':
     dependencies:
       '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
@@ -6315,10 +6378,70 @@ snapshots:
       '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
 
   '@tiptap/extension-horizontal-rule@3.1.0(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)':
+=======
+  '@tiptap/extension-code@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))':
+    dependencies:
+      '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
+
+  '@tiptap/extension-collaboration@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)(@tiptap/y-tiptap@3.0.0(prosemirror-model@1.25.2)(prosemirror-state@1.4.3)(prosemirror-view@1.40.1)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27))(yjs@13.6.27)':
+    dependencies:
+      '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
+      '@tiptap/pm': 3.1.0
+      '@tiptap/y-tiptap': 3.0.0(prosemirror-model@1.25.2)(prosemirror-state@1.4.3)(prosemirror-view@1.40.1)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)
+      yjs: 13.6.27
+
+  '@tiptap/extension-document@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))':
+    dependencies:
+      '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
+
+  '@tiptap/extension-drag-handle@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/extension-collaboration@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)(@tiptap/y-tiptap@3.0.0(prosemirror-model@1.25.2)(prosemirror-state@1.4.3)(prosemirror-view@1.40.1)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27))(yjs@13.6.27))(@tiptap/extension-node-range@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)(@tiptap/y-tiptap@3.0.0(prosemirror-model@1.25.2)(prosemirror-state@1.4.3)(prosemirror-view@1.40.1)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27))':
+    dependencies:
+      '@floating-ui/dom': 1.7.2
+      '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
+      '@tiptap/extension-collaboration': 3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)(@tiptap/y-tiptap@3.0.0(prosemirror-model@1.25.2)(prosemirror-state@1.4.3)(prosemirror-view@1.40.1)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27))(yjs@13.6.27)
+      '@tiptap/extension-node-range': 3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)
+      '@tiptap/pm': 3.1.0
+      '@tiptap/y-tiptap': 3.0.0(prosemirror-model@1.25.2)(prosemirror-state@1.4.3)(prosemirror-view@1.40.1)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)
+
+  '@tiptap/extension-dropcursor@3.0.7(@tiptap/extensions@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0))':
+    dependencies:
+      '@tiptap/extensions': 3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)
+
+  '@tiptap/extension-file-handler@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/extension-text-style@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0)))(@tiptap/pm@3.1.0)':
+    dependencies:
+      '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
+      '@tiptap/extension-text-style': 3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))
+      '@tiptap/pm': 3.1.0
+
+  '@tiptap/extension-floating-menu@3.1.0(@floating-ui/dom@1.7.2)(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)':
+    dependencies:
+      '@floating-ui/dom': 1.7.2
+      '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
+      '@tiptap/pm': 3.1.0
+
+  '@tiptap/extension-gapcursor@3.0.7(@tiptap/extensions@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0))':
+    dependencies:
+      '@tiptap/extensions': 3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)
+
+  '@tiptap/extension-hard-break@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))':
+    dependencies:
+      '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
+
+  '@tiptap/extension-heading@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))':
+    dependencies:
+      '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
+
+  '@tiptap/extension-highlight@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))':
+    dependencies:
+      '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
+
+  '@tiptap/extension-horizontal-rule@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)':
+>>>>>>> 7a6ddd5e3 (updated Eden-AI to version 0.6.22)
     dependencies:
       '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
       '@tiptap/pm': 3.1.0
 
+<<<<<<< HEAD
   '@tiptap/extension-image@3.1.0(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))':
     dependencies:
       '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
@@ -6342,6 +6465,31 @@ snapshots:
       '@tiptap/extension-list': 3.1.0(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)
 
   '@tiptap/extension-list@3.1.0(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)':
+=======
+  '@tiptap/extension-image@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))':
+    dependencies:
+      '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
+
+  '@tiptap/extension-italic@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))':
+    dependencies:
+      '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
+
+  '@tiptap/extension-link@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)':
+    dependencies:
+      '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
+      '@tiptap/pm': 3.1.0
+      linkifyjs: 4.3.1
+
+  '@tiptap/extension-list-item@3.0.7(@tiptap/extension-list@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0))':
+    dependencies:
+      '@tiptap/extension-list': 3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)
+
+  '@tiptap/extension-list-keymap@3.0.7(@tiptap/extension-list@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0))':
+    dependencies:
+      '@tiptap/extension-list': 3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)
+
+  '@tiptap/extension-list@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)':
+>>>>>>> 7a6ddd5e3 (updated Eden-AI to version 0.6.22)
     dependencies:
       '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
       '@tiptap/pm': 3.1.0
@@ -6352,11 +6500,16 @@ snapshots:
       '@tiptap/pm': 3.1.0
       '@tiptap/suggestion': 3.1.0(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)
 
+<<<<<<< HEAD
   '@tiptap/extension-node-range@3.1.0(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)':
+=======
+  '@tiptap/extension-node-range@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)':
+>>>>>>> 7a6ddd5e3 (updated Eden-AI to version 0.6.22)
     dependencies:
       '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
       '@tiptap/pm': 3.1.0
 
+<<<<<<< HEAD
   '@tiptap/extension-ordered-list@3.1.0(@tiptap/extension-list@3.1.0(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0))':
     dependencies:
       '@tiptap/extension-list': 3.1.0(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)
@@ -6370,10 +6523,26 @@ snapshots:
       '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
 
   '@tiptap/extension-table@3.1.0(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)':
+=======
+  '@tiptap/extension-ordered-list@3.0.7(@tiptap/extension-list@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0))':
+    dependencies:
+      '@tiptap/extension-list': 3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)
+
+  '@tiptap/extension-paragraph@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))':
+    dependencies:
+      '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
+
+  '@tiptap/extension-strike@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))':
+    dependencies:
+      '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
+
+  '@tiptap/extension-table@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)':
+>>>>>>> 7a6ddd5e3 (updated Eden-AI to version 0.6.22)
     dependencies:
       '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
       '@tiptap/pm': 3.1.0
 
+<<<<<<< HEAD
   '@tiptap/extension-text-style@3.1.0(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))':
     dependencies:
       '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
@@ -6395,6 +6564,29 @@ snapshots:
       '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
 
   '@tiptap/extensions@3.1.0(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)':
+=======
+  '@tiptap/extension-text-style@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))':
+    dependencies:
+      '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
+
+  '@tiptap/extension-text@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))':
+    dependencies:
+      '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
+
+  '@tiptap/extension-typography@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))':
+    dependencies:
+      '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
+
+  '@tiptap/extension-underline@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))':
+    dependencies:
+      '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
+
+  '@tiptap/extension-youtube@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))':
+    dependencies:
+      '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
+
+  '@tiptap/extensions@3.0.7(@tiptap/core@3.1.0(@tiptap/pm@3.1.0))(@tiptap/pm@3.1.0)':
+>>>>>>> 7a6ddd5e3 (updated Eden-AI to version 0.6.22)
     dependencies:
       '@tiptap/core': 3.1.0(@tiptap/pm@3.1.0)
       '@tiptap/pm': 3.1.0
