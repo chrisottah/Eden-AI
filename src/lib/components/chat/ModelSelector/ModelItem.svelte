@@ -86,7 +86,7 @@
 			</div>
 
 			<div class="flex items-center">
-				<Tooltip content={`${item.label} (${item.value})`} placement="top-start">
+				<Tooltip content={`${item.label}`} placement="top-start">
 					<div class="line-clamp-1">
 						{item.label}
 					</div>

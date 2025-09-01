@@ -1,8 +1,8 @@
 [project]
 name = "open-webui"
-description = "Open WebUI"
+description = "Eden AI"
 authors = [
-    { name = "Timothy Jaeryang Baek", email = "tim@openwebui.com" }
+    { name = "Eden AI", email = "support@edenhub.io" }
 ]
 license = { file = "LICENSE" }
 dependencies = [
