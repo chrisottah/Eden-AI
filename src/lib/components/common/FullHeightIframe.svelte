@@ -85,11 +85,9 @@
 		const hasAlpineDirectives = alpineDirectives.some((dir) => html.includes(dir));
 		if (hasAlpineDirectives) {
 			try {
-				const { default: alpineCode } = await import('alpinejs/dist/cdn.min.js?raw');
-				const alpineBlob = new Blob([alpineCode], { type: 'text/javascript' });
-				const alpineUrl = URL.createObjectURL(alpineBlob);
-				const alpineTag = `<script src="${alpineUrl}" defer><\/script>`;
-				scriptTags.push(alpineTag);
+				// Load Alpine.js dynamically from CDN (avoids ?raw import issues)
+                const alpineTag = `<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer><\/script>`;
+                scriptTags.push(alpineTag);
 			} catch (error) {
 				console.error('Error processing Alpine for iframe:', error);
 			}
