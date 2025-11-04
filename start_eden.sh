@@ -19,7 +19,7 @@ nohup bash -c 'cd backend && uvicorn open_webui.main:app --host 0.0.0.0 --port 8
 
 # Start Cloudflare tunnel
 echo "Starting Cloudflare tunnel..."
-nohup cloudflared tunnel --config ~/.cloudflared/edenhub-config.yml run edenhub-tunnel > cloudflared.log 2>&1 &
+nohup cloudflared tunnel --config ~/.cloudflared/edenhub-config.yml run edenhub > cloudflared.log 2>&1 &
 
 echo "Services started in background!"
 echo "Backend logs: backend.log"
