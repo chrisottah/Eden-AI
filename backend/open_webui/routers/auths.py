@@ -5,6 +5,10 @@ import datetime
 import logging
 from aiohttp import ClientSession
 
+import os
+from fastapi import Form
+from typing import Optional
+
 from open_webui.models.auths import (
     AddUserForm,
     ApiKey,
@@ -1029,9 +1033,256 @@ async def update_ldap_config(
 
 
 ############################
-# API Key
+# KingsChat OAuth Login
 ############################
 
+@router.get("/auth/kingschat/login")
+async def kingschat_login(request: Request, redirect: Optional[str] = None):
+    """
+    Initiates KingsChat OAuth login flow
+    Redirects user to KingsChat authorization page
+    """
+    
+    KINGSCHAT_CLIENT_ID = os.environ.get("KINGSCHAT_CLIENT_ID", "")
+    KINGSCHAT_AUTHORIZE_URL = os.environ.get("KINGSCHAT_AUTHORIZE_URL", "https://accounts.kingsch.at")
+    
+    if not KINGSCHAT_CLIENT_ID:
+        log.error("KINGSCHAT_CLIENT_ID not configured")
+        raise HTTPException(400, detail="KingsChat OAuth not configured")
+    
+    # Get base URL for callback
+    base_url = str(request.app.state.config.WEBUI_URL or request.base_url).rstrip("/")
+    
+    # Build callback URL
+    callback_url = f"{base_url}/auth/callback"
+    if redirect:
+        callback_url += f"?next={redirect}"
+    
+    # Build authorization URL
+    # Matches developer's implementation: scopes=["conference_calls"]
+    auth_url = (
+        f"{KINGSCHAT_AUTHORIZE_URL}/"
+        f"?client_id={KINGSCHAT_CLIENT_ID}"
+        f"&post_redirect=true"
+        f"&scopes=[\"conference_calls\"]"
+        f"&redirect_uri={callback_url}"
+    )
+    
+    log.info(f"Redirecting to KingsChat OAuth: {auth_url}")
+    
+    return RedirectResponse(url=auth_url, status_code=302)
+
+
+############################
+# KingsChat Custom OAuth Callback
+############################
+
+@router.post("/auth/callback")
+async def kingschat_callback(
+    request: Request,
+    response: Response,
+    accessToken: str = Form(None),
+    refreshToken: str = Form(None),
+    next: Optional[str] = None
+):
+    """
+    Custom callback handler for KingsChat OAuth
+    Matches the developer's Next.js implementation
+    """
+    
+    KC_PROFILE_URL = "https://api.kingsch.at/developer/api/profile"
+    
+    try:
+        # Validate access token
+        if not accessToken:
+            log.error("KingsChat callback: No access token received")
+            raise HTTPException(400, detail=ERROR_MESSAGES.INVALID_CRED)
+        
+        # Fetch user profile from KingsChat
+        async with ClientSession(trust_env=True) as session:
+            async with session.get(
+                KC_PROFILE_URL,
+                headers={
+                    "Authorization": f"Bearer {accessToken}",
+                    "Content-Type": "application/json",
+                },
+            ) as resp:
+                if resp.status != 200:
+                    error_text = await resp.text()
+                    log.error(f"KingsChat profile fetch failed: {resp.status} - {error_text}")
+                    raise HTTPException(400, detail=ERROR_MESSAGES.INVALID_CRED)
+                
+                user_profile_raw = await resp.json()
+        
+        # Extract profile data (handle nested structure)
+        profile = user_profile_raw.get("profile", user_profile_raw)
+        
+        # Map KingsChat profile to Open WebUI user format
+        email = profile.get("email", "").lower()
+        username = profile.get("username", "")
+        user_id = profile.get("id", "")
+        first_name = profile.get("first_name") or profile.get("name", "").split(" ")[0] if profile.get("name") else ""
+        last_name = profile.get("last_name") or " ".join(profile.get("name", "").split(" ")[1:]) if profile.get("name") else ""
+        profile_picture = profile.get("avatar") or profile.get("profile_picture", "")
+        
+        # Validate required fields
+        if not email or not user_id:
+            log.error(f"KingsChat callback: Missing required fields - email: {email}, id: {user_id}")
+            raise HTTPException(400, detail=ERROR_MESSAGES.INVALID_CRED)
+        
+        # Create provider_sub for OAuth tracking
+        provider_sub = f"kingschat@{user_id}"
+        
+        # Check if user exists by OAuth sub
+        user = Users.get_user_by_oauth_sub(provider_sub)
+        
+        if not user and request.app.state.config.OAUTH_MERGE_ACCOUNTS_BY_EMAIL:
+            # Try to find user by email
+            user = Users.get_user_by_email(email)
+            if user:
+                # Link this OAuth account to existing user
+                Users.update_user_oauth_sub_by_id(user.id, provider_sub)
+        
+        # Process profile picture
+        picture_url = "/user.png"
+        if profile_picture:
+            try:
+                async with ClientSession(trust_env=True) as session:
+                    async with session.get(
+                        profile_picture,
+                        headers={"Authorization": f"Bearer {accessToken}"},
+                    ) as pic_resp:
+                        if pic_resp.status == 200:
+                            import base64
+                            import mimetypes
+                            picture_data = await pic_resp.read()
+                            base64_picture = base64.b64encode(picture_data).decode("utf-8")
+                            mime_type = mimetypes.guess_type(profile_picture)[0] or "image/jpeg"
+                            picture_url = f"data:{mime_type};base64,{base64_picture}"
+            except Exception as e:
+                log.warning(f"Failed to fetch KingsChat profile picture: {e}")
+        
+        if user:
+            # Update existing user
+            log.info(f"KingsChat: Existing user login - {email}")
+        else:
+            # Create new user
+            if not request.app.state.config.ENABLE_OAUTH_SIGNUP:
+                raise HTTPException(
+                    status.HTTP_403_FORBIDDEN,
+                    detail=ERROR_MESSAGES.ACCESS_PROHIBITED
+                )
+            
+            # Check if email is already taken
+            existing_user = Users.get_user_by_email(email)
+            if existing_user:
+                raise HTTPException(400, detail=ERROR_MESSAGES.EMAIL_TAKEN)
+            
+            # Determine user role
+            role = "admin" if not Users.has_users() else request.app.state.config.DEFAULT_USER_ROLE
+            
+            # Create display name
+            name = username if username else email.split("@")[0]
+            if first_name:
+                name = f"{first_name} {last_name}".strip()
+            
+            log.info(f"KingsChat: Creating new user - {email}")
+            
+            user = Auths.insert_new_auth(
+                email=email,
+                password=get_password_hash(str(uuid.uuid4())),  # Random password
+                name=name,
+                profile_image_url=picture_url,
+                role=role,
+                oauth_sub=provider_sub,
+            )
+            
+            if not user:
+                raise HTTPException(500, detail=ERROR_MESSAGES.CREATE_USER_ERROR)
+            
+            # Send webhook if configured
+            if request.app.state.config.WEBHOOK_URL:
+                await post_webhook(
+                    request.app.state.WEBUI_NAME,
+                    request.app.state.config.WEBHOOK_URL,
+                    WEBHOOK_MESSAGES.USER_SIGNUP(user.name),
+                    {
+                        "action": "signup",
+                        "message": WEBHOOK_MESSAGES.USER_SIGNUP(user.name),
+                        "user": user.model_dump_json(exclude_none=True),
+                    },
+                )
+        
+        # Create JWT token
+        jwt_token = create_token(
+            data={"id": user.id},
+            expires_delta=parse_duration(request.app.state.config.JWT_EXPIRES_IN),
+        )
+        
+        # Prepare redirect URL
+        redirect_base_url = str(request.app.state.config.WEBUI_URL or request.base_url).rstrip("/")
+        redirect_path = next if next else "/"
+        redirect_url = f"{redirect_base_url}{redirect_path}"
+        
+        # Create redirect response
+        redirect_response = RedirectResponse(url=redirect_url, status_code=302)
+        
+        # Set authentication cookie
+        redirect_response.set_cookie(
+            key="token",
+            value=jwt_token,
+            httponly=False,  # Required for frontend access
+            samesite=WEBUI_AUTH_COOKIE_SAME_SITE,
+            secure=WEBUI_AUTH_COOKIE_SECURE,
+        )
+        
+        # Store OAuth session
+        try:
+            token_data = {
+                "access_token": accessToken,
+                "token_type": "Bearer",
+                "issued_at": time.time(),
+            }
+            
+            if refreshToken:
+                token_data["refresh_token"] = refreshToken
+            
+            # Set expiry (default 30 minutes if not provided)
+            token_data["expires_at"] = int(time.time() + (30 * 60))
+            
+            # Clean up existing sessions for this user/provider
+            sessions = OAuthSessions.get_sessions_by_user_id(user.id)
+            for session in sessions:
+                if session.provider == "kingschat":
+                    OAuthSessions.delete_session_by_id(session.id)
+            
+            # Create new session
+            session = OAuthSessions.create_session(
+                user_id=user.id,
+                provider="kingschat",
+                token=token_data,
+            )
+            
+            log.info(f"Stored OAuth session for user {user.id}, provider kingschat")
+        except Exception as e:
+            log.error(f"Failed to store OAuth session: {e}")
+        
+        return redirect_response
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        log.error(f"KingsChat callback error: {e}")
+        redirect_base_url = str(request.app.state.config.WEBUI_URL or request.base_url).rstrip("/")
+        error_message = str(e) if str(e) else "KingsChat authentication failed"
+        return RedirectResponse(
+            url=f"{redirect_base_url}/auth?error={error_message}",
+            status_code=302
+        )
+    
+############################
+# API Key
+############################
 
 # create api key
 @router.post("/api_key", response_model=ApiKey)

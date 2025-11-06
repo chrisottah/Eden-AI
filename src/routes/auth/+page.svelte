@@ -535,6 +535,17 @@
 									{/if}
 								</div>
 							{/if}
+                             <!-- ADD KINGSCHAT RIGHT HERE -->
+                            {#if true}  <!-- Or use a proper condition later -->
+                                        <button
+            								class="flex justify-center items-center bg-sky-500 hover:bg-sky-600 text-white transition w-full rounded-full font-medium text-sm py-2.5"
+            								on:click={() => {
+            								window.location.href = `/api/v1/auths/auth/kingschat/login`;
+            								}}
+            							 >
+            										<span>Continue with KingsChat</span>
+            							 </button>
+                                   {/if}
 
 							{#if $config?.features.enable_ldap && $config?.features.enable_login_form}
 								<div class="mt-2">
@@ -555,6 +566,7 @@
 									</button>
 								</div>
 							{/if}
+                            
 						</div>
 						{#if $config?.metadata?.login_footer}
 							<div class="max-w-3xl mx-auto">
