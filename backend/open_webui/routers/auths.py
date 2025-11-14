@@ -1078,6 +1078,7 @@ async def kingschat_login(request: Request, redirect: Optional[str] = None):
 ############################
 
 @router.post("/auth/callback")
+@router.get("/auth/callback") 
 async def kingschat_callback(
     request: Request,
     response: Response,

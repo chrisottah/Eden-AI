@@ -536,17 +536,6 @@
 									{/if}
 								</div>
 							{/if}
-                             <!-- ADD KINGSCHAT RIGHT HERE -->
-                            {#if true}  <!-- Or use a proper condition later -->
-                                        <button
-            								class="flex justify-center items-center bg-sky-500 hover:bg-sky-600 text-white transition w-full rounded-full font-medium text-sm py-2.5"
-            								on:click={() => {
-            								window.location.href = `/api/v1/auths/auth/kingschat/login`;
-            								}}
-            							 >
-            										<span>Continue with KingsChat</span>
-            							 </button>
-                                   {/if}
 
                              <!-- ADD KINGSCHAT RIGHT HERE -->
                             {#if true}  <!-- Or use a proper condition later -->
@@ -556,23 +545,26 @@
         										window.location.href = `/api/v1/auths/auth/kingschat/login`;
         									}}
         								>
-        									<span>Continue with KingsChat</span>
+        									<span>Login with KingsChat</span>
         								</button>
                                     {/if}
 
 							{#if $config?.features.enable_ldap && $config?.features.enable_login_form}
 								<div class="mt-2">
-									<!-- UPDATED KINGSCHAT BUTTON WITH LOADING STATE -->
 									<button
-										class="flex justify-center items-center bg-sky-500 hover:bg-sky-600 text-white transition w-full rounded-full font-medium text-sm py-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
-										on:click={loginWithKingsChat}
-										disabled={kingsChatLoading}
+										class="flex justify-center items-center text-xs w-full text-center underline"
+										type="button"
+										on:click={() => {
+											if (mode === 'ldap')
+												mode = ($config?.onboarding ?? false) ? 'signup' : 'signin';
+											else mode = 'ldap';
+										}}
 									>
-										{#if kingsChatLoading}
-											<span>Loading KingsChat...</span>
-										{:else}
-											<span>Continue with KingsChat</span>
-										{/if}
+										<span
+											>{mode === 'ldap'
+												? $i18n.t('Continue with Email')
+												: $i18n.t('Continue with LDAP')}</span
+										>
 									</button>
 								</div>
 							{/if}
