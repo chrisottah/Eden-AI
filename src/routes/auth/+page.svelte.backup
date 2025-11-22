@@ -101,61 +101,6 @@
 		}
 	};
 
-    // ==================== KINGSCHAT WEB SDK LOGIN ====================
-    let kingschatLoading = false;
-    
-    const loginWithKingsChatSDK = async () => {
-    	kingschatLoading = true;
-    	
-    	try {
-    		// Dynamically import KingsChat Web SDK
-    		const kingsChatWebSdk = await import('kingschat-web-sdk');
-    		
-    		console.log('Initiating KingsChat SDK login...');
-    		
-    		// Call KingsChat login (opens popup/modal)
-    		const authResponse = await kingsChatWebSdk.default.login({
-    			scopes: ["conference_calls"],
-    			clientId: "6c60b442-e50c-493a-83c7-19cd07bc3a36"
-    		});
-    		
-    		console.log('KingsChat authentication successful:', authResponse);
-    		
-    		// Send tokens to your backend
-    		const response = await fetch(`${WEBUI_BASE_URL}/api/v1/auths/auth/kingschat/sdk-callback`, {
-    			method: 'POST',
-    			headers: {
-    				'Content-Type': 'application/json',
-    			},
-    			body: JSON.stringify({
-    				accessToken: authResponse.accessToken,
-    				refreshToken: authResponse.refreshToken,
-    				expiresInMillis: authResponse.expiresInMillis
-    			})
-    		});
-    		
-    		if (!response.ok) {
-    			const errorData = await response.json();
-    			throw new Error(errorData.detail || 'Backend authentication failed');
-    		}
-    		
-    		const userData = await response.json();
-    		console.log('Backend authentication successful:', userData);
-    		
-    		// Set user session (same as other OAuth methods)
-    		await setSessionUser(userData);
-    		
-    		toast.success('Successfully logged in with KingsChat!');
-    		
-    	} catch (error) {
-    		console.error('KingsChat SDK login error:', error);
-    		toast.error(`KingsChat login failed: ${error.message}`);
-    	} finally {
-    		kingschatLoading = false;
-    	}
-    };
-    // ==================== END KINGSCHAT SDK ====================
-
 	const oauthCallbackHandler = async () => {
 		// Get the value of the 'token' cookie
 		function getCookie(name) {
@@ -608,67 +553,18 @@
 
 							{#if $config?.features.enable_ldap && $config?.features.enable_login_form}
 								<div class="mt-2">
-
-									<!-- ==================== KINGSCHAT LOGIN BUTTON ==================== -->
-                                    <!-- 
-                                    🔄 VERSION CONTROL:
-                                    - COMING SOON VERSION: Shows message while waiting for developer to register callback URL
-                                    - SDK VERSION: Ready to activate once callback URL is registered
-                                    - OLD REDIRECT VERSION: Backup option
-                                    
-                                    CURRENT STATUS: Waiting for developer to register callback URL in KingsChat portal
-                                    Required callback: https://edenhub.io/auth/callback
-                                    
-                                    TO ACTIVATE WHEN READY:
-                                    1. Comment out "COMING SOON VERSION" section below
-                                    2. Uncomment "SDK VERSION" section
-                                    3. Test login flow
-                                    -->
-                                    
-                                    <!-- ============ COMING SOON VERSION (Currently Active - Waiting for Portal Setup) ============ -->
-                                    <button
-                                    	class="flex justify-center items-center bg-sky-500/60 text-white transition w-full rounded-full font-medium text-sm py-2.5 opacity-60 cursor-not-allowed"
-                                    	on:click={() => {
-                                    		toast.info('🔧 KingsChat authentication is being configured. Please use Google or email login for now. We\'ll notify you when KingsChat login is ready!');
-                                    	}}
-                                    	disabled
-                                    >
-                                    	<span>Continue with KingsChat <span class="text-xs opacity-75">(Setup in Progress)</span></span>
-                                    </button>
-                                    
-                                    <!-- ============ SDK VERSION (Ready to Activate) ============ -->
-                                    <!--
-                                    <button
-                                    	class="flex justify-center items-center bg-sky-500 hover:bg-sky-600 text-white transition w-full rounded-full font-medium text-sm py-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    	on:click={loginWithKingsChatSDK}
-                                    	disabled={kingschatLoading}
-                                    >
-                                    	{#if kingschatLoading}
-                                    		<div class="flex items-center gap-2">
-                                    			<div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                    			<span>Connecting to KingsChat...</span>
-                                    		</div>
-                                    	{:else}
-                                    		<span>Continue with KingsChat</span>
-                                    	{/if}
-                                    </button>
-                                    -->
-                                    
-                                    <!-- ============ OLD REDIRECT VERSION (Backup) ============ -->
-                                    <!--
-                                    <button
-                                    	class="flex justify-center items-center bg-sky-500 hover:bg-sky-600 text-white transition w-full rounded-full font-medium text-sm py-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    	on:click={loginWithKingsChat}
-                                    	disabled={kingsChatLoading}
-                                    >
-                                    	{#if kingsChatLoading}
-                                    		<span>Loading KingsChat...</span>
-                                    	{:else}
-                                    		<span>Continue with KingsChat</span>
-                                    	{/if}
-                                    </button>
-                                    -->
-                                    <!-- ==================== END KINGSCHAT BUTTON ==================== -->
+									<!-- UPDATED KINGSCHAT BUTTON WITH LOADING STATE -->
+									<button
+										class="flex justify-center items-center bg-sky-500 hover:bg-sky-600 text-white transition w-full rounded-full font-medium text-sm py-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
+										on:click={loginWithKingsChat}
+										disabled={kingsChatLoading}
+									>
+										{#if kingsChatLoading}
+											<span>Loading KingsChat...</span>
+										{:else}
+											<span>Continue with KingsChat</span>
+										{/if}
+									</button>
 								</div>
 							{/if}
                             
