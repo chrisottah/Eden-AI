@@ -25,6 +25,10 @@ from open_webui.models.users import Users, UpdateProfileForm
 from open_webui.models.groups import Groups
 from open_webui.models.oauth_sessions import OAuthSessions
 
+# For the email verification and password reset
+from open_webui.models.tokens import VerificationTokens, PasswordResetTokens
+from open_webui.utils.email import send_verification_email, send_password_reset_email
+
 from open_webui.constants import ERROR_MESSAGES, WEBHOOK_MESSAGES
 from open_webui.env import (
     WEBUI_AUTH,
@@ -524,6 +528,14 @@ async def signin(request: Request, response: Response, form_data: SigninForm):
         user = Auths.authenticate_user(form_data.email.lower(), form_data.password)
 
     if user:
+        # ADD THIS CHECK - Email Verification
+        # Check if email is verified (skip for admin and first user)
+        if user.role != "admin" and hasattr(user, 'email_verified') and not user.email_verified:
+            raise HTTPException(
+                403,
+                detail="Please verify your email address. Check your inbox for the verification link."
+            )
+        # END EMAIL VERIFICATION CHECK
 
         expires_delta = parse_duration(request.app.state.config.JWT_EXPIRES_IN)
         expires_at = None
@@ -622,6 +634,20 @@ async def signup(request: Request, response: Response, form_data: SignupForm):
         )
 
         if user:
+            # ADD THIS BLOCK - Email Verification
+            if not has_users:
+                # First user (admin) - auto-verify
+                Users.update_email_verified_by_id(user.id, verified=True)
+            else:
+                # New users - send verification email
+                try:
+                    token = VerificationTokens.create_token(user.id, expires_in_hours=24)
+                    send_verification_email(user.email, user.name, token)
+                    log.info(f"Verification email sent to {user.email}")
+                except Exception as e:
+                    log.error(f"Failed to send verification email: {e}")
+                    # Don't block signup if email fails
+            # END EMAIL VERIFICATION BLOCK 
             expires_delta = parse_duration(request.app.state.config.JWT_EXPIRES_IN)
             expires_at = None
             if expires_delta:
@@ -1290,207 +1316,185 @@ async def kingschat_callback(
             status_code=302
         )
 
-############################
-# KingsChat Web SDK Callback
-############################
+# Forms for email verification and so on
+class ResendVerificationForm(BaseModel):
+    email: str
 
-from pydantic import BaseModel
+class ForgotPasswordForm(BaseModel):
+    email: str
 
-class KingsChatSDKLogin(BaseModel):
-    accessToken: str
-    refreshToken: str = None
-    expiresInMillis: int = None
+class ResetPasswordForm(BaseModel):
+    token: str
+    new_password: str
 
-@router.post("/auth/kingschat/sdk-callback")
-async def kingschat_sdk_callback(
-    request: Request,
-    response: Response,
-    login_data: KingsChatSDKLogin
+
+@router.post("/verify-email/send")
+async def send_verification(
+    form_data: ResendVerificationForm,
+    request: Request
 ):
     """
-    Handles authentication from KingsChat Web SDK
-    This bypasses the redirect callback URL requirement
+    Resend email verification link
     """
-    
-    KC_PROFILE_URL = "https://api.kingsch.at/developer/api/profile"
-    
     try:
-        # Validate access token
-        if not login_data.accessToken:
-            log.error("KingsChat SDK: No access token received")
-            raise HTTPException(400, detail=ERROR_MESSAGES.INVALID_CRED)
+        user = Users.get_user_by_email(form_data.email.lower())
         
-        log.info("KingsChat SDK: Processing login with access token")
+        if not user:
+            # Don't reveal if user exists or not (security)
+            return {"success": True, "message": "If this email exists, a verification link has been sent."}
         
-        # Fetch user profile from KingsChat
-        async with ClientSession(trust_env=True) as session:
-            async with session.get(
-                KC_PROFILE_URL,
-                headers={
-                    "Authorization": f"Bearer {login_data.accessToken}",
-                    "Content-Type": "application/json",
-                },
-            ) as resp:
-                if resp.status != 200:
-                    error_text = await resp.text()
-                    log.error(f"KingsChat profile fetch failed: {resp.status} - {error_text}")
-                    raise HTTPException(400, detail=ERROR_MESSAGES.INVALID_CRED)
-                
-                user_profile_raw = await resp.json()
+        # Check if already verified
+        if user.email_verified:
+            raise HTTPException(400, detail="Email already verified")
         
-        # Extract profile data
-        profile = user_profile_raw.get("profile", user_profile_raw)
+        # Generate verification token
+        token = VerificationTokens.create_token(user.id, expires_in_hours=24)
         
-        email = profile.get("email", "").lower()
-        username = profile.get("username", "")
-        user_id = profile.get("id", "")
-        first_name = profile.get("first_name") or profile.get("name", "").split(" ")[0] if profile.get("name") else ""
-        last_name = profile.get("last_name") or " ".join(profile.get("name", "").split(" ")[1:]) if profile.get("name") else ""
-        profile_picture = profile.get("avatar") or profile.get("profile_picture", "")
+        # Send email
+        email_sent = send_verification_email(user.email, user.name, token)
         
-        # Validate required fields
-        if not email or not user_id:
-            log.error(f"KingsChat SDK: Missing required fields - email: {email}, id: {user_id}")
-            raise HTTPException(400, detail=ERROR_MESSAGES.INVALID_CRED)
+        if email_sent:
+            log.info(f"Verification email sent to {user.email}")
+            return {"success": True, "message": "Verification email sent successfully"}
+        else:
+            raise HTTPException(500, detail="Failed to send verification email")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        log.error(f"Error sending verification email: {e}")
+        raise HTTPException(500, detail="An error occurred")
+
+
+@router.get("/verify-email/{token}")
+async def verify_email(token: str, response: Response):
+    """
+    Verify email address using token from email link
+    """
+    try:
+        # Verify token and get user_id
+        user_id = VerificationTokens.verify_token(token)
         
-        # Create provider_sub
-        provider_sub = f"kingschat@{user_id}"
+        if not user_id:
+            raise HTTPException(400, detail="Invalid or expired verification link")
         
-        # Check if user exists
-        user = Users.get_user_by_oauth_sub(provider_sub)
+        # Mark email as verified
+        user = Users.update_email_verified_by_id(user_id, verified=True)
         
-        if not user and request.app.state.config.OAUTH_MERGE_ACCOUNTS_BY_EMAIL:
-            user = Users.get_user_by_email(email)
-            if user:
-                Users.update_user_oauth_sub_by_id(user.id, provider_sub)
+        if not user:
+            raise HTTPException(404, detail="User not found")
         
-        # Process profile picture
-        picture_url = "/user.png"
-        if profile_picture:
-            try:
-                async with ClientSession(trust_env=True) as session:
-                    async with session.get(
-                        profile_picture,
-                        headers={"Authorization": f"Bearer {login_data.accessToken}"},
-                    ) as pic_resp:
-                        if pic_resp.status == 200:
-                            import base64
-                            import mimetypes
-                            picture_data = await pic_resp.read()
-                            base64_picture = base64.b64encode(picture_data).decode("utf-8")
-                            mime_type = mimetypes.guess_type(profile_picture)[0] or "image/jpeg"
-                            picture_url = f"data:{mime_type};base64,{base64_picture}"
-            except Exception as e:
-                log.warning(f"Failed to fetch KingsChat profile picture: {e}")
+        log.info(f"Email verified for user {user.email}")
+        
+        # Redirect to login with success message
+        redirect_url = f"{request.app.state.config.WEBUI_URL or request.base_url}/auth?verified=true"
+        return RedirectResponse(url=redirect_url, status_code=302)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        log.error(f"Email verification error: {e}")
+        redirect_url = f"{request.app.state.config.WEBUI_URL or request.base_url}/auth?error=verification_failed"
+        return RedirectResponse(url=redirect_url, status_code=302)
+
+
+@router.post("/forgot-password")
+async def forgot_password(form_data: ForgotPasswordForm, request: Request):
+    """
+    Request password reset link
+    """
+    try:
+        user = Users.get_user_by_email(form_data.email.lower())
+        
+        # Always return success (don't reveal if email exists - security)
+        response_message = "If this email exists in our system, a password reset link has been sent."
         
         if user:
-            log.info(f"KingsChat SDK: Existing user login - {email}")
-        else:
-            # Create new user
-            if not request.app.state.config.ENABLE_OAUTH_SIGNUP:
-                raise HTTPException(
-                    status.HTTP_403_FORBIDDEN,
-                    detail=ERROR_MESSAGES.ACCESS_PROHIBITED
-                )
+            # Generate reset token (expires in 1 hour)
+            token = PasswordResetTokens.create_token(user.id, expires_in_hours=1)
             
-            existing_user = Users.get_user_by_email(email)
-            if existing_user:
-                raise HTTPException(400, detail=ERROR_MESSAGES.EMAIL_TAKEN)
+            # Send reset email
+            email_sent = send_password_reset_email(user.email, user.name, token)
             
-            role = "admin" if not Users.has_users() else request.app.state.config.DEFAULT_USER_ROLE
-            
-            name = username if username else email.split("@")[0]
-            if first_name:
-                name = f"{first_name} {last_name}".strip()
-            
-            log.info(f"KingsChat SDK: Creating new user - {email}")
-            
-            user = Auths.insert_new_auth(
-                email=email,
-                password=get_password_hash(str(uuid.uuid4())),
-                name=name,
-                profile_image_url=picture_url,
-                role=role,
-                oauth_sub=provider_sub,
-            )
-            
-            if not user:
-                raise HTTPException(500, detail=ERROR_MESSAGES.CREATE_USER_ERROR)
-            
-            if request.app.state.config.WEBHOOK_URL:
-                await post_webhook(
-                    request.app.state.WEBUI_NAME,
-                    request.app.state.config.WEBHOOK_URL,
-                    WEBHOOK_MESSAGES.USER_SIGNUP(user.name),
-                    {
-                        "action": "signup",
-                        "message": WEBHOOK_MESSAGES.USER_SIGNUP(user.name),
-                        "user": user.model_dump_json(exclude_none=True),
-                    },
-                )
-        
-        # Create JWT token
-        jwt_token = create_token(
-            data={"id": user.id},
-            expires_delta=parse_duration(request.app.state.config.JWT_EXPIRES_IN),
-        )
-        
-        # Store OAuth session
-        try:
-            token_data = {
-                "access_token": login_data.accessToken,
-                "token_type": "Bearer",
-                "issued_at": time.time(),
-            }
-            
-            if login_data.refreshToken:
-                token_data["refresh_token"] = login_data.refreshToken
-            
-            # Calculate expiry from SDK response or use default
-            if login_data.expiresInMillis:
-                token_data["expires_at"] = int(time.time() + (login_data.expiresInMillis / 1000))
+            if email_sent:
+                log.info(f"Password reset email sent to {user.email}")
             else:
-                token_data["expires_at"] = int(time.time() + (30 * 60))
-            
-            # Clean up existing sessions
-            sessions = OAuthSessions.get_sessions_by_user_id(user.id)
-            for session in sessions:
-                if session.provider == "kingschat":
-                    OAuthSessions.delete_session_by_id(session.id)
-            
-            # Create new session
-            session = OAuthSessions.create_session(
-                user_id=user.id,
-                provider="kingschat",
-                token=token_data,
-            )
-            
-            log.info(f"Stored OAuth session for user {user.id}, provider kingschat (SDK)")
-        except Exception as e:
-            log.error(f"Failed to store OAuth session: {e}")
+                log.error(f"Failed to send password reset email to {user.email}")
         
-        # Return session data for frontend
-        expires_delta = parse_duration(request.app.state.config.JWT_EXPIRES_IN)
-        expires_at = None
-        if expires_delta:
-            expires_at = int(time.time()) + int(expires_delta.total_seconds())
+        return {"success": True, "message": response_message}
+        
+    except Exception as e:
+        log.error(f"Forgot password error: {e}")
+        # Still return success to not reveal if email exists
+        return {"success": True, "message": "If this email exists in our system, a password reset link has been sent."}
+
+
+@router.post("/reset-password")
+async def reset_password(form_data: ResetPasswordForm):
+    """
+    Reset password using token from email link
+    """
+    try:
+        # Verify token and get user_id
+        user_id = PasswordResetTokens.verify_token(form_data.token)
+        
+        if not user_id:
+            raise HTTPException(400, detail="Invalid or expired reset link. Please request a new one.")
+        
+        # Validate new password
+        if len(form_data.new_password) < 8:
+            raise HTTPException(400, detail="Password must be at least 8 characters long")
+        
+        # Hash new password
+        hashed_password = get_password_hash(form_data.new_password)
+        
+        # Update password
+        success = Auths.update_user_password_by_id(user_id, hashed_password)
+        
+        if not success:
+            raise HTTPException(500, detail="Failed to update password")
+        
+        user = Users.get_user_by_id(user_id)
+        log.info(f"Password reset successful for user {user.email}")
+        
+        # Delete any remaining reset tokens for this user
+        PasswordResetTokens.delete_tokens_by_user_id(user_id)
         
         return {
-            "token": jwt_token,
-            "token_type": "Bearer",
-            "expires_at": expires_at,
-            "id": user.id,
-            "email": user.email,
-            "name": user.name,
-            "role": user.role,
-            "profile_image_url": user.profile_image_url,
+            "success": True,
+            "message": "Password reset successful. You can now log in with your new password."
         }
         
     except HTTPException:
         raise
     except Exception as e:
-        log.error(f"KingsChat SDK callback error: {e}")
-        raise HTTPException(500, detail=f"KingsChat authentication failed: {str(e)}")
+        log.error(f"Password reset error: {e}")
+        raise HTTPException(500, detail="An error occurred while resetting your password")
+
+
+@router.get("/reset-password/verify/{token}")
+async def verify_reset_token(token: str):
+    """
+    Check if a password reset token is valid (for frontend validation)
+    """
+    try:
+        with get_db() as db:
+            from open_webui.models.tokens import PasswordResetToken
+            reset = db.query(PasswordResetToken).filter_by(token=token, used=False).first()
+            
+            if not reset:
+                return {"valid": False, "message": "Invalid reset link"}
+            
+            # Check if expired
+            if int(time.time()) > reset.expires_at:
+                return {"valid": False, "message": "Reset link has expired"}
+            
+            return {"valid": True, "message": "Token is valid"}
+            
+    except Exception as e:
+        log.error(f"Token verification error: {e}")
+        return {"valid": False, "message": "Error verifying token"}
+
 
 ############################
 # API Key
