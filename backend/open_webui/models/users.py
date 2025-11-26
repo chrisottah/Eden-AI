@@ -11,7 +11,7 @@ from open_webui.utils.misc import throttle
 
 
 from pydantic import BaseModel, ConfigDict
-from sqlalchemy import BigInteger, Column, String, Text, Date
+from sqlalchemy import BigInteger, Column, String, Text, Date, Boolean
 from sqlalchemy import or_
 
 import datetime
@@ -32,6 +32,9 @@ class User(Base):
 
     role = Column(String)
     profile_image_url = Column(Text)
+
+    # ADD THIS LINE:
+    email_verified = Column(Boolean, default=False)  # ← Add this
 
     bio = Column(Text, nullable=True)
     gender = Column(Text, nullable=True)
@@ -64,6 +67,9 @@ class UserModel(BaseModel):
 
     role: str = "pending"
     profile_image_url: str
+
+    # ADD THIS LINE:
+    email_verified: bool = False  # ← Add this
 
     bio: Optional[str] = None
     gender: Optional[str] = None
@@ -453,6 +459,17 @@ class UsersTable:
                 return UserModel.model_validate(user)
             else:
                 return None
-
+                
+    # Added this line below for the email verification
+    def update_email_verified_by_id(self, id: str, verified: bool = True) -> Optional[UserModel]:
+            """Mark user's email as verified"""
+            try:
+                with get_db() as db:
+                    db.query(User).filter_by(id=id).update({"email_verified": verified})
+                    db.commit()
+                    user = db.query(User).filter_by(id=id).first()
+                    return UserModel.model_validate(user)
+            except Exception:
+                return None
 
 Users = UsersTable()
