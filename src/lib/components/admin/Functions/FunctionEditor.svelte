@@ -43,8 +43,8 @@
 	let boilerplate = `"""
 title: Example Filter
 author: open-webui
-author_url: https://github.com/open-webui
-funding_url: https://github.com/open-webui
+author_url: https://edenhub.io
+funding_url: https://edenhub.io
 version: 0.1
 """
 

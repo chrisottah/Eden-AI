@@ -534,6 +534,17 @@
 										</button>
 									{/if}
 								</div>
+
+                                                                        <!-- KingsChat OAuth - Coming Soon -->
+                                                                        <button
+                                                                                type="button"
+                                                                                class="flex justify-center items-center bg-gray-700/5 hover:bg-gray-700/10 dark:bg-gray-100/5 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition w-full rounded-full font-medium text-sm py-2.5"
+                                                                                on:click={() => {
+                                                                                        toast.info('KingsChat login coming soon!');
+                                                                                }}
+                                                                        >
+                                                                                <span>{$i18n.t('Continue with {{provider}}', { provider: 'KingsChat' })}</span>
+                                                                        </button>
 							{/if}
 
 							{#if $config?.features.enable_ldap && $config?.features.enable_login_form}

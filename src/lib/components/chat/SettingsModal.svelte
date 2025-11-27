@@ -429,7 +429,7 @@
 				'about us',
 				'aboutapp',
 				'aboutme',
-				'aboutopenwebui',
+				'aboutedenai',
 				'aboutpage',
 				'aboutus',
 				'check for updates',
