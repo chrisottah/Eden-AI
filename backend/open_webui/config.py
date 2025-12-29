@@ -441,6 +441,40 @@ GITHUB_CLIENT_REDIRECT_URI = PersistentConfig(
     os.environ.get("GITHUB_CLIENT_REDIRECT_URI", ""),
 )
 
+####################################
+# KingsChat OAuth
+####################################
+
+KINGSCHAT_CLIENT_ID = PersistentConfig(
+    "KINGSCHAT_CLIENT_ID",
+    "oauth.kingschat.client_id",
+    os.environ.get("KINGSCHAT_CLIENT_ID", ""),
+)
+
+KINGSCHAT_LOGIN_URL = PersistentConfig(
+    "KINGSCHAT_LOGIN_URL",
+    "oauth.kingschat.login_url",
+    os.environ.get("KINGSCHAT_LOGIN_URL", "https://accounts.kingsch.at"),
+)
+
+KINGSCHAT_API_URL = PersistentConfig(
+    "KINGSCHAT_API_URL",
+    "oauth.kingschat.api_url",
+    os.environ.get("KINGSCHAT_API_URL", "https://api.kingsch.at"),
+)
+
+KINGSCHAT_REDIRECT_URI = PersistentConfig(
+    "KINGSCHAT_REDIRECT_URI",
+    "oauth.kingschat.redirect_uri",
+    os.environ.get("KINGSCHAT_REDIRECT_URI", ""),
+)
+
+KINGSCHAT_SCOPES = PersistentConfig(
+    "KINGSCHAT_SCOPES",
+    "oauth.kingschat.scopes",
+    os.environ.get("KINGSCHAT_SCOPES", '["conference_calls"]'),
+)
+
 OAUTH_CLIENT_ID = PersistentConfig(
     "OAUTH_CLIENT_ID",
     "oauth.oidc.client_id",
@@ -788,6 +822,18 @@ def load_oauth_providers():
             "sub_claim": "user_id",
         }
 
+    # KingsChat OAuth - uses custom flow, not standard OIDC
+    if KINGSCHAT_CLIENT_ID.value:
+        OAUTH_PROVIDERS["kingschat"] = {
+            "name": "KingsChat",
+            "client_id": KINGSCHAT_CLIENT_ID.value,
+            "login_url": KINGSCHAT_LOGIN_URL.value,
+            "api_url": KINGSCHAT_API_URL.value,
+            "redirect_uri": KINGSCHAT_REDIRECT_URI.value,
+            "scopes": KINGSCHAT_SCOPES.value,
+            # No register function - KingsChat uses custom routes
+        }
+
     configured_providers = []
     if GOOGLE_CLIENT_ID.value:
         configured_providers.append("Google")
@@ -797,6 +843,8 @@ def load_oauth_providers():
         configured_providers.append("GitHub")
     if FEISHU_CLIENT_ID.value:
         configured_providers.append("Feishu")
+    if KINGSCHAT_CLIENT_ID.value:
+        configured_providers.append("KingsChat")
 
     if configured_providers and not OPENID_PROVIDER_URL.value:
         provider_list = ", ".join(configured_providers)
@@ -806,7 +854,6 @@ def load_oauth_providers():
         log.warning(
             f"Set OPENID_PROVIDER_URL to your OAuth provider's OpenID Connect discovery endpoint to fix logout functionality."
         )
-
 
 load_oauth_providers()
 
