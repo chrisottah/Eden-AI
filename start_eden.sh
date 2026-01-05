@@ -15,7 +15,7 @@ find . -type d -name ".ipynb_checkpoints" -exec rm -rf {} + 2>/dev/null || true
 
 # Start backend with nohup and log to file
 echo "Starting backend server on port 8081..."
-nohup bash -c 'cd backend && uvicorn open_webui.main:app --host 0.0.0.0 --port 8081' > backend.log 2>&1 &
+nohup bash -c 'cd backend && /venv/main/bin/uvicorn open_webui.main:app --host 0.0.0.0 --port 8081' > backend.log 2>&1 &
 
 # Wait a moment for backend to start
 sleep 3
