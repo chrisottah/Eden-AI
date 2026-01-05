@@ -1741,22 +1741,6 @@ if len(OAUTH_PROVIDERS) > 0:
     )
 
 
-@app.get("/oauth/{provider}/login")
-async def oauth_login(provider: str, request: Request):
-    return await oauth_manager.handle_login(request, provider)
-
-
-# OAuth login logic is as follows:
-# 1. Attempt to find a user with matching subject ID, tied to the provider
-# 2. If OAUTH_MERGE_ACCOUNTS_BY_EMAIL is true, find a user with the email address provided via OAuth
-#    - This is considered insecure in general, as OAuth providers do not always verify email addresses
-# 3. If there is no user, and ENABLE_OAUTH_SIGNUP is true, create a user
-#    - Email addresses are considered unique, so we fail registration if the email address is already taken
-@app.get("/oauth/{provider}/callback")
-async def oauth_callback(provider: str, request: Request, response: Response):
-    return await oauth_manager.handle_callback(request, provider, response)
-
-
 # KingsChat OAuth routes - uses custom flow with POST callback
 from open_webui.utils.kingschat_oauth import kingschat_oauth
 
@@ -1776,6 +1760,16 @@ async def kingschat_callback(request: Request, response: Response):
     unlike standard OAuth which uses GET with authorization code.
     """
     return await kingschat_oauth.handle_callback(request, response)
+
+
+@app.get("/oauth/{provider}/login")
+async def oauth_login(provider: str, request: Request):
+    return await oauth_manager.handle_login(request, provider)
+
+
+@app.get("/oauth/{provider}/callback")
+async def oauth_callback(provider: str, request: Request, response: Response):
+    return await oauth_manager.handle_callback(request, provider, response)
 
 
 @app.get("/manifest.json")
