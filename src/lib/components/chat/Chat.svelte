@@ -1043,6 +1043,13 @@
 	};
 
 	const chatActionHandler = async (chatId, actionId, modelId, responseMessageId, event = null) => {
+		// Use get() to read store values without subscribing (required for async functions)
+		const currentChatId = get(chatId);
+		const currentModels = get(models);
+		const currentSocket = get(socket);
+		const currentTemporaryChatEnabled = get(temporaryChatEnabled);
+		const currentChatPageValue = get(currentChatPage);
+		
 		const messages = createMessagesList(history, responseMessageId);
 
 		const res = await chatAction(localStorage.token, actionId, {
@@ -1056,9 +1063,9 @@
 				...(m.sources ? { sources: m.sources } : {})
 			})),
 			...(event ? { event: event } : {}),
-			model_item: $models.find((m) => m.id === modelId),
+			model_item: currentModels.find((m) => m.id === modelId),
 			chat_id: chatId,
-			session_id: $socket?.id,
+			session_id: currentSocket?.id,
 			id: responseMessageId
 		}).catch((error) => {
 			toast.error(`${error}`);
@@ -1079,8 +1086,8 @@
 			}
 		}
 
-		if ($chatId == chatId) {
-			if (!$temporaryChatEnabled) {
+		if (currentChatId == chatId) {
+			if (!currentTemporaryChatEnabled) {
 				chat = await updateChatById(localStorage.token, chatId, {
 					models: selectedModels,
 					messages: messages,
@@ -1090,7 +1097,7 @@
 				});
 
 				currentChatPage.set(1);
-				await chats.set(await getChatList(localStorage.token, $currentChatPage));
+				await chats.set(await getChatList(localStorage.token, 1));
 			}
 		}
 	};
