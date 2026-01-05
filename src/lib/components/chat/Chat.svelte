@@ -976,6 +976,9 @@
 		}
 	};
 	const chatCompletedHandler = async (chatId, modelId, responseMessageId, messages) => {
+		// Capture store value at top level to avoid scoped subscription error
+		const currentChatId = $chatId;
+		
 		const res = await chatCompleted(localStorage.token, {
 			model: modelId,
 			messages: messages.map((m) => ({
@@ -1017,7 +1020,7 @@
 
 		await tick();
 
-		if ($chatId == chatId) {
+		if (currentChatId == chatId) {
 			if (!$temporaryChatEnabled) {
 				chat = await updateChatById(localStorage.token, chatId, {
 					models: selectedModels,
