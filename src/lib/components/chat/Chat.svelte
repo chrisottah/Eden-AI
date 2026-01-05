@@ -888,19 +888,24 @@
 	};
 
 	const loadChat = async () => {
+		// Use get() to read store values without subscribing (required for async functions)
+		const currentChatId = get(chatId);
+		const currentTemporaryChatEnabled = get(temporaryChatEnabled);
+		const currentUser = get(user);
+		
 		chatId.set(chatIdProp);
 
-		if ($temporaryChatEnabled) {
+		if (currentTemporaryChatEnabled) {
 			temporaryChatEnabled.set(false);
 		}
 
-		chat = await getChatById(localStorage.token, $chatId).catch(async (error) => {
+		chat = await getChatById(localStorage.token, currentChatId).catch(async (error) => {
 			await goto('/');
 			return null;
 		});
 
 		if (chat) {
-			tags = await getTagsById(localStorage.token, $chatId).catch(async (error) => {
+			tags = await getTagsById(localStorage.token, currentChatId).catch(async (error) => {
 				return [];
 			});
 
@@ -914,7 +919,7 @@
 						? chatContent.models
 						: [chatContent.models ?? ''];
 
-				if (!($user?.role === 'admin' || ($user?.permissions?.chat?.multiple_models ?? true))) {
+				if (!(currentUser?.role === 'admin' || (currentUser?.permissions?.chat?.multiple_models ?? true))) {
 					selectedModels = selectedModels.length > 0 ? [selectedModels[0]] : [''];
 				}
 
@@ -949,7 +954,7 @@
 					}
 				}
 
-				const taskRes = await getTaskIdsByChatId(localStorage.token, $chatId).catch((error) => {
+				const taskRes = await getTaskIdsByChatId(localStorage.token, currentChatId).catch((error) => {
 					return null;
 				});
 
