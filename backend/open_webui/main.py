@@ -2267,6 +2267,27 @@ async def oauth_client_callback(
     )
 
 
+# KingsChat OAuth routes - uses custom flow with POST callback
+from open_webui.utils.kingschat_oauth import kingschat_oauth
+
+
+@app.get("/oauth/kingschat/login")
+async def kingschat_login(request: Request):
+    """Initiate KingsChat OAuth login flow."""
+    return await kingschat_oauth.handle_login(request)
+
+
+@app.post("/oauth/kingschat/callback")
+async def kingschat_callback(request: Request, response: Response):
+    """
+    Handle KingsChat OAuth callback.
+
+    KingsChat uses POST with form data containing accessToken and refreshToken,
+    unlike standard OAuth which uses GET with authorization code.
+    """
+    return await kingschat_oauth.handle_callback(request, response)
+
+
 @app.get("/oauth/{provider}/login")
 async def oauth_login(provider: str, request: Request):
     return await oauth_manager.handle_login(request, provider)

@@ -1056,19 +1056,24 @@
 	};
 
 	const loadChat = async () => {
+		const currentTemporaryChatEnabled = get(temporaryChatEnabled);
+		const currentUser = get(user);
+
 		chatId.set(chatIdProp);
 
-		if ($temporaryChatEnabled) {
+		if (currentTemporaryChatEnabled) {
 			temporaryChatEnabled.set(false);
 		}
 
-		chat = await getChatById(localStorage.token, $chatId).catch(async (error) => {
+		const currentChatId = get(chatId);
+
+		chat = await getChatById(localStorage.token, currentChatId).catch(async (error) => {
 			await goto('/');
 			return null;
 		});
 
 		if (chat) {
-			tags = await getTagsById(localStorage.token, $chatId).catch(async (error) => {
+			tags = await getTagsById(localStorage.token, currentChatId).catch(async (error) => {
 				return [];
 			});
 
@@ -1082,7 +1087,7 @@
 						? chatContent.models
 						: [chatContent.models ?? ''];
 
-				if (!($user?.role === 'admin' || ($user?.permissions?.chat?.multiple_models ?? true))) {
+				if (!(currentUser?.role === 'admin' || (currentUser?.permissions?.chat?.multiple_models ?? true))) {
 					selectedModels = selectedModels.length > 0 ? [selectedModels[0]] : [''];
 				}
 
@@ -1109,7 +1114,7 @@
 					}
 				}
 
-				const taskRes = await getTaskIdsByChatId(localStorage.token, $chatId).catch((error) => {
+				const taskRes = await getTaskIdsByChatId(localStorage.token, currentChatId).catch((error) => {
 					return null;
 				});
 
@@ -1136,6 +1141,13 @@
 		}
 	};
 	const chatCompletedHandler = async (_chatId, modelId, responseMessageId, messages) => {
+		// Use get() to read store values without subscribing (required for async functions)
+		const currentChatId = get(chatId);
+		const currentModels = get(models);
+		const currentSocket = get(socket);
+		const currentTemporaryChatEnabled = get(temporaryChatEnabled);
+		const currentChatPageValue = get(currentChatPage);
+
 		const res = await chatCompleted(localStorage.token, {
 			model: modelId,
 			messages: messages.map((m) => ({
@@ -1148,9 +1160,9 @@
 				...(m.sources ? { sources: m.sources } : {})
 			})),
 			filter_ids: selectedFilterIds.length > 0 ? selectedFilterIds : undefined,
-			model_item: $models.find((m) => m.id === modelId),
+			model_item: currentModels.find((m) => m.id === modelId),
 			chat_id: _chatId,
-			session_id: $socket?.id,
+			session_id: currentSocket?.id,
 			id: responseMessageId
 		}).catch((error) => {
 			toast.error(`${error}`);
@@ -1177,8 +1189,8 @@
 
 		await tick();
 
-		if ($chatId == _chatId) {
-			if (!$temporaryChatEnabled) {
+		if (currentChatId == _chatId) {
+			if (!currentTemporaryChatEnabled) {
 				chat = await updateChatById(localStorage.token, _chatId, {
 					models: selectedModels,
 					messages: messages,
@@ -1188,7 +1200,7 @@
 				});
 
 				currentChatPage.set(1);
-				await chats.set(await getChatList(localStorage.token, $currentChatPage));
+				await chats.set(await getChatList(localStorage.token, 1));
 			}
 		}
 
@@ -1196,6 +1208,11 @@
 	};
 
 	const chatActionHandler = async (_chatId, actionId, modelId, responseMessageId, event = null) => {
+		const currentChatId = get(chatId);
+		const currentModels = get(models);
+		const currentSocket = get(socket);
+		const currentTemporaryChatEnabled = get(temporaryChatEnabled);
+
 		const messages = createMessagesList(history, responseMessageId);
 
 		const res = await chatAction(localStorage.token, actionId, {
@@ -1209,9 +1226,9 @@
 				...(m.sources ? { sources: m.sources } : {})
 			})),
 			...(event ? { event: event } : {}),
-			model_item: $models.find((m) => m.id === modelId),
+			model_item: currentModels.find((m) => m.id === modelId),
 			chat_id: _chatId,
-			session_id: $socket?.id,
+			session_id: currentSocket?.id,
 			id: responseMessageId
 		}).catch((error) => {
 			toast.error(`${error}`);
@@ -1232,8 +1249,8 @@
 			}
 		}
 
-		if ($chatId == _chatId) {
-			if (!$temporaryChatEnabled) {
+		if (currentChatId == _chatId) {
+			if (!currentTemporaryChatEnabled) {
 				chat = await updateChatById(localStorage.token, _chatId, {
 					models: selectedModels,
 					messages: messages,
@@ -1243,7 +1260,7 @@
 				});
 
 				currentChatPage.set(1);
-				await chats.set(await getChatList(localStorage.token, $currentChatPage));
+				await chats.set(await getChatList(localStorage.token, 1));
 			}
 		}
 	};

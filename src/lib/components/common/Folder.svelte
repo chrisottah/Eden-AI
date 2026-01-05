@@ -152,7 +152,7 @@
 					id="sidebar-folder-button"
 					class=" w-full group rounded-xl relative flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-900 transition {buttonClassName}"
 				>
-					<button class="w-full py-1.5 pl-2 flex items-center gap-1.5 text-xs font-medium">
+					<div class="w-full py-1.5 pl-2 flex items-center gap-1.5 text-xs font-medium cursor-pointer">
 						{#if chevron}
 							<div class=" p-[1px]">
 								{#if open}
@@ -166,10 +166,10 @@
 						<div class="translate-y-[0.5px] {chevron ? '' : 'pl-0.5'}">
 							{name}
 						</div>
-					</button>
+					</div>
 
 					{#if onAdd}
-						<button
+						<div
 							class="absolute z-10 right-2 invisible group-hover:visible self-center flex items-center dark:text-gray-300"
 							on:pointerup={(e) => {
 								e.stopPropagation();
@@ -187,7 +187,7 @@
 									<Plus className=" size-3" strokeWidth="2.5" />
 								</button>
 							</Tooltip>
-						</button>
+						</div>
 					{/if}
 				</div>
 

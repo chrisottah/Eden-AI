@@ -29,14 +29,15 @@
 	}}
 >
 	<Tooltip content={$i18n.t('More')}>
-		<button
+		<div
+			class="flex items-center"
 			on:click={(e) => {
 				e.stopPropagation();
 				show = !show;
 			}}
 		>
 			<slot />
-		</button>
+		</div>
 	</Tooltip>
 
 	<div slot="content">
