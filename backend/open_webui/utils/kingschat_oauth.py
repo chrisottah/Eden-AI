@@ -354,7 +354,11 @@ class KingsChatOAuth:
             redirect_url = f"{redirect_base_url}/auth#token={jwt_token}"
 
             log.info(f"KingsChat login successful for user: {user.email}")
-            return RedirectResponse(url=redirect_url, headers=response.headers)
+            return RedirectResponse(
+                url=redirect_url,
+                headers=response.headers,
+                status_code=status.HTTP_303_SEE_OTHER,
+            )
 
         except HTTPException:
             raise
