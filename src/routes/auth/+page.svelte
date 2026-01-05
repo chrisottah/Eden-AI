@@ -102,15 +102,27 @@
 	};
 
 	const oauthCallbackHandler = async () => {
-		// Get the value of the 'token' cookie
-		function getCookie(name) {
-			const match = document.cookie.match(
-				new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()[\]\\/+^])/g, '\\$1') + '=([^;]*)')
-			);
-			return match ? decodeURIComponent(match[1]) : null;
+		// Get the value of the 'token' from URL hash first (standard flow)
+		let token = null;
+		if ($page.url.hash) {
+			const hash = $page.url.hash.substring(1);
+			if (hash) {
+				const params = new URLSearchParams(hash);
+				token = params.get('token');
+			}
 		}
 
-		const token = getCookie('token');
+		// Fallback to cookie if not in hash
+		if (!token) {
+			function getCookie(name) {
+				const match = document.cookie.match(
+					new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()[\]\\/+^])/g, '\\$1') + '=([^;]*)')
+				);
+				return match ? decodeURIComponent(match[1]) : null;
+			}
+			token = getCookie('token');
+		}
+
 		if (!token) {
 			return;
 		}
