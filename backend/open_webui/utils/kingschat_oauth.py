@@ -228,20 +228,14 @@ class KingsChatOAuth:
                     detail="Invalid KingsChat profile data",
                 )
 
-            # Create provider sub identifier
-            provider_sub = f"kingschat@{profile['id']}"
-            email = profile.get("email")
-            username = profile.get("username", "")
-            name = profile.get("name") or username or email or "KingsChat User"
-
-            # Check if user exists by OAuth sub
-            user = Users.get_user_by_oauth_sub(provider_sub)
+            # Check if user exists by KingsChat sub
+            user = Users.get_user_by_oauth_sub("kingschat", profile["id"])
 
             if not user and OAUTH_MERGE_ACCOUNTS_BY_EMAIL.value and email:
                 # Try to find by email and link accounts
                 user = Users.get_user_by_email(email)
                 if user:
-                    Users.update_user_oauth_sub_by_id(user.id, provider_sub)
+                    Users.update_user_oauth_by_id(user.id, "kingschat", profile["id"])
                     log.info(f"Linked KingsChat account to existing user: {email}")
 
             if not user:
@@ -272,14 +266,14 @@ class KingsChatOAuth:
                 # Get profile picture
                 picture_url = profile.get("avatar", "/user.png") or "/user.png"
 
-                # Create new user
+                # Create new user with oauth dictionary
                 user = Auths.insert_new_auth(
                     email=email,
                     password=get_password_hash(str(uuid.uuid4())),
                     name=name,
                     profile_image_url=picture_url,
                     role=role,
-                    oauth_sub=provider_sub,
+                    oauth={"kingschat": {"sub": profile["id"]}},
                 )
 
                 if not user:
