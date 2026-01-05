@@ -207,14 +207,14 @@
 									/>
 								</a>
 
-								<a href="#" onclick="alert('Follow us on social media - coming soon!'); return false;" target="_blank">
-									<img
-										alt="X (formerly Twitter) Follow"
-										src="https://img.shields.io/twitter/follow/EdenAI"
-									/>
-								</a>
+							<a href="#" on:click|preventDefault={() => alert('Follow us on social media - coming soon!')} target="_blank">
+								<img
+									alt="X (formerly Twitter) Follow"
+									src="https://img.shields.io/twitter/follow/EdenAI"
+								/>
+							</a>
 
-								<a href="#" onclick="alert('GitHub repository coming soon!'); return false;" target="_blank">
+							<a href="#" on:click|preventDefault={() => alert('GitHub repository coming soon!')} target="_blank">
 									<img
 										alt="Github Repo"
 										src="https://img.shields.io/github/stars/open-webui/open-webui?style=social&label=Star us on Github"
