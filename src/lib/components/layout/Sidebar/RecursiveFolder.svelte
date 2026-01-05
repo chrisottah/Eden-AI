@@ -417,12 +417,12 @@
 	>
 		<!-- svelte-ignore a11y-no-static-element-interactions -->
 		<div class="w-full group">
-			<button
+			<div
 				id="folder-{folderId}-button"
 				class="relative w-full py-1.5 px-2 rounded-md flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-500 font-medium hover:bg-gray-100 dark:hover:bg-gray-900 transition {$selectedFolder?.id ===
 				folderId
 					? 'bg-gray-100 dark:bg-gray-900'
-					: ''}"
+					: ''} cursor-pointer"
 				on:dblclick={() => {
 					renameHandler();
 				}}
@@ -474,7 +474,7 @@
 					{/if}
 				</div>
 
-				<button
+				<div
 					class="absolute z-10 right-2 invisible group-hover:visible self-center flex items-center dark:text-gray-300"
 					on:pointerup={(e) => {
 						e.stopPropagation();
@@ -496,8 +496,8 @@
 							<EllipsisHorizontal className="size-4" strokeWidth="2.5" />
 						</button>
 					</FolderMenu>
-				</button>
-			</button>
+				</div>
+			</div>
 		</div>
 
 		<div slot="content" class="w-full">
