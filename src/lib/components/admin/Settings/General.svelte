@@ -200,7 +200,7 @@
 
 						<div class="mt-1">
 							<div class="flex space-x-1">
-								<a href="#" onclick="alert('Discord community coming soon!'); return false;" target="_blank">
+								<a href="#" on:click|preventDefault={() => alert('Discord community coming soon!')} target="_blank">
 									<img
 										alt="Discord"
 										src="https://img.shields.io/badge/Discord-Eden_AI-blue?logo=discord&logoColor=white"
