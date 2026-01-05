@@ -82,7 +82,8 @@ class OAuthManager:
         self.oauth = OAuth()
         self.app = app
         for _, provider_config in OAUTH_PROVIDERS.items():
-            provider_config["register"](self.oauth)
+            if "register" in provider_config:
+                provider_config["register"](self.oauth)
 
     def get_client(self, provider_name):
         return self.oauth.create_client(provider_name)
