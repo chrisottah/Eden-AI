@@ -976,8 +976,12 @@
 		}
 	};
 	const chatCompletedHandler = async (chatId, modelId, responseMessageId, messages) => {
-		// Capture store value at top level to avoid scoped subscription error
-		const currentChatId = $chatId;
+		// Use get() to read store values without subscribing (required for async functions)
+		const currentChatId = get(chatId);
+		const currentModels = get(models);
+		const currentSocket = get(socket);
+		const currentTemporaryChatEnabled = get(temporaryChatEnabled);
+		const currentChatPageValue = get(currentChatPage);
 		
 		const res = await chatCompleted(localStorage.token, {
 			model: modelId,
@@ -991,9 +995,9 @@
 				...(m.sources ? { sources: m.sources } : {})
 			})),
 			filter_ids: selectedFilterIds.length > 0 ? selectedFilterIds : undefined,
-			model_item: $models.find((m) => m.id === modelId),
+			model_item: currentModels.find((m) => m.id === modelId),
 			chat_id: chatId,
-			session_id: $socket?.id,
+			session_id: currentSocket?.id,
 			id: responseMessageId
 		}).catch((error) => {
 			toast.error(`${error}`);
@@ -1021,7 +1025,7 @@
 		await tick();
 
 		if (currentChatId == chatId) {
-			if (!$temporaryChatEnabled) {
+			if (!currentTemporaryChatEnabled) {
 				chat = await updateChatById(localStorage.token, chatId, {
 					models: selectedModels,
 					messages: messages,
@@ -1031,7 +1035,7 @@
 				});
 
 				currentChatPage.set(1);
-				await chats.set(await getChatList(localStorage.token, $currentChatPage));
+				await chats.set(await getChatList(localStorage.token, 1));
 			}
 		}
 
