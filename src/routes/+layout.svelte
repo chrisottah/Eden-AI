@@ -559,7 +559,7 @@
 
 				if ($isLastActiveTab) {
 					if ($settings?.notificationEnabled ?? false) {
-						new Notification(`${title} • Open WebUI`, {
+						new Notification(`${title} • Eden AI`, {
 							body: data?.content,
 							icon: `${WEBUI_API_BASE_URL}/users/${data?.user?.id}/profile/image`
 						});
