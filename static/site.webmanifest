@@ -1,6 +1,6 @@
 {
-  "name": "Open WebUI",
-  "short_name": "WebUI",
+  "name": "Eden AI",
+  "short_name": "Eden",
   "icons": [
     {
       "src": "/static/web-app-manifest-192x192.png",
