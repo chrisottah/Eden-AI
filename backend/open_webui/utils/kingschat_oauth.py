@@ -346,19 +346,49 @@ class KingsChatOAuth:
             # Build redirect URL
             redirect_base_url = str(
                 request.app.state.config.WEBUI_URL or request.base_url
-            )
-            if redirect_base_url.endswith("/"):
-                redirect_base_url = redirect_base_url[:-1]
+            ).rstrip("/")
 
             # Redirect to frontend with token
             redirect_url = f"{redirect_base_url}/auth#token={jwt_token}"
 
             log.info(f"KingsChat login successful for user: {user.email}")
-            return RedirectResponse(
+            
+            # Create the redirect response
+            redirect_response = RedirectResponse(
                 url=redirect_url,
-                headers=response.headers,
                 status_code=status.HTTP_303_SEE_OTHER,
             )
+
+            # Set JWT cookie on the final response object
+            redirect_response.set_cookie(
+                key="token",
+                value=jwt_token,
+                httponly=True,
+                samesite=WEBUI_AUTH_COOKIE_SAME_SITE,
+                secure=WEBUI_AUTH_COOKIE_SECURE,
+            )
+
+            # Store KingsChat tokens in cookies
+            redirect_response.set_cookie(
+                key="kingschat_token",
+                value=access_token,
+                httponly=True,
+                samesite=WEBUI_AUTH_COOKIE_SAME_SITE,
+                secure=WEBUI_AUTH_COOKIE_SECURE,
+                max_age=60 * 30,  # 30 minutes
+            )
+
+            if refresh_token:
+                redirect_response.set_cookie(
+                    key="kingschat_refresh_token",
+                    value=refresh_token,
+                    httponly=True,
+                    samesite=WEBUI_AUTH_COOKIE_SAME_SITE,
+                    secure=WEBUI_AUTH_COOKIE_SECURE,
+                    max_age=60 * 60 * 24 * 365,  # 1 year
+                )
+
+            return redirect_response
 
         except HTTPException:
             raise
